@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head lang="ja">
+    <meta charset="UTF-8">
+    <title>三角巾リレーメーカー</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <script type="text/javascript">
+        var events = [
+            {name: '頭', count: 1, rank: 1,
+                exclusives: ['左耳', '右耳']
+            },
+            {name: '左耳', count: 1, rank: 1,
+                exclusives: ['頭', '右耳']
+            },
+            {name: '右耳', count: 1, rank: 1,
+                exclusives: ['頭', '左耳']
+            },
+            {name: '左肩', count: 2, rank: 1,
+                exclusives: ['右肩', '左胸', '右胸', '左背中', '右背中', '左前腕+吊', '右前腕+吊', '左上腕']
+            },
+            {name: '右肩', count: 2, rank: 1, exclusives: [
+                '左肩', '左胸', '右胸', '左背中', '右背中', '左前腕+吊', '右前腕+吊', '右上腕'
+            ]},
+            {name: '左胸', count: 1, rank: 2,
+                exclusives: ['左肩', '右肩', '右胸', '左背中', '右背中']
+            },
+            {name: '右胸', count: 1, rank: 2,
+                exclusives: ['左肩', '右肩', '左胸', '左背中', '右背中']
+            },
+            {name: '左背中', count: 1, rank: 3,
+                exclusives: ['左肩', '右肩', '左胸', '右胸', '右背中']
+            },
+            {name: '右背中', count: 1, rank: 3,
+                exclusives: ['左肩', '右肩', '左胸', '右胸', '左背中']
+            },
+            {name: '左上腕', count: 1, rank: 2,
+                exclusives: ['左肩', '左前腕+吊']
+            },
+            {name: '右上腕', count: 1, rank: 2,
+                exclusives: ['右肩', '右前腕+吊']
+            },
+            {name: '左肘', count: 1, rank: 3,
+                exclusives: ['左前腕+吊']
+            },
+            {name: '右肘', count: 1, rank: 3,
+                exclusives: ['右前腕+吊']
+            },
+            {name: '左前腕', count: 1, rank: 1,
+                exclusives: ['左前腕+吊']
+            },
+            {name: '右前腕', count: 1, rank: 1,
+                exclusives: ['右前腕+吊']
+            },
+            {name: '左前腕+吊', count: 2, rank: 1,
+                exclusives: ['左上腕', '左肘', '左前腕', '左掌', '左手の甲', '右前腕+吊', '左肩', '右肩']
+            },
+            {name: '右前腕+吊', count: 2, rank: 1,
+                exclusives: ['右上腕', '右肘', '右前腕', '右掌', '右手の甲', '左前腕+吊', '左肩', '右肩']
+            },
+            {name: '左掌', count: 1, rank: 1,
+                exclusives: ['左前腕+吊', '左手の甲']
+            },
+            {name: '右掌', count: 1, rank: 1,
+                exclusives: ['右前腕+吊', '右手の甲']
+            },
+            {name: '左手の甲', count: 1, rank: 1,
+                exclusives: ['左前腕+吊', '左掌']
+            },
+            {name: '右手の甲', count: 1, rank: 1,
+                exclusives: ['右前腕+吊', '右掌']
+            },
+            {name: '左大腿', count: 1, rank: 2,
+                exclusives: []
+            },
+            {name: '右大腿', count: 1, rank: 2,
+                exclusives: []
+            },
+            {name: '左膝', count: 1, rank: 1,
+                exclusives: []
+            },
+            {name: '右膝', count: 1, rank: 1,
+                exclusives: []
+            },
+            {name: '左下腿', count: 1, rank: 1,
+                exclusives: []
+            },
+            {name: '右下腿', count: 1, rank: 1,
+                exclusives: []
+            }
+        ];
+
+        /**
+         * Create event set.
+         * @param people the number of people
+         * @param count number of triangle bandage
+         */
+        makeEventSet = function (people, count, rank) {
+            if (people > count || people * 2 < count) {
+                throw('Illegale arguments');
+            }
+
+            // Util functions
+            var randomize = function (array) {
+                return array.sort(function () {
+                    return Math.random() - 0.5;
+                });
+            };
+            var filter = function (e) {
+                return e['rank'] <= rank;
+            };
+
+            // Create hash
+            var tmp_events1 = {};
+            var tmp_names1 = [];
+            var tmp_events2 = {};
+            var tmp_names2 = [];
+            for (var i = 0, e; e = events[i]; ++i) {
+                if (!filter(e)) continue;
+
+                if (e.count == 1) {
+                    tmp_events1[e.name] = e;
+                    tmp_names1.push(e.name);
+                }
+                else if (e['count'] == 2) {
+                    tmp_events2[e.name] = e;
+                    tmp_names2.push(e.name);
+                }
+                else {
+                    throw('Unexpected');
+                }
+            }
+            randomize(tmp_names1);
+            randomize(tmp_names2);
+
+            // Exclusive used event
+            var exclusive = function (name) {
+                var f = function (e) { return e != name }
+                tmp_names1 = tmp_names1.filter(f);
+                tmp_names2 = tmp_names2.filter(f);
+            }
+            // Get count1 event
+            var get1 = function() {
+                var name = tmp_names1.pop();
+                var e = tmp_events1[name];
+                if (!e) throw('No data');
+                for (var i = 0,n; n = e.exclusives[i]; ++i) {
+                    exclusive(n);
+                }
+                return [e];
+            }
+            // Get count2 event
+            var get2 = function() {
+                if(tmp_names2.length > 0 && Math.random() > 0.5){
+                    var name = tmp_names2.pop();
+                    var e = tmp_events2[name];
+                    if (!e) throw('No data');
+                    for (var i = 0,n; n = e.exclusives[i]; ++i) {
+                        exclusive(n);
+                    }
+                    return [e];
+                }
+                else {
+                    return get1().concat(get1());
+                }
+            }
+
+            var num2 = count - people;
+            var num1 = people - num2;
+
+            var ret = [];
+            // Create event for count1
+            for (var i = 0; i < num1; ++i) { ret.push(get1()); }
+            // Create event for count2
+            for (var i = 0; i < num2; ++i) { ret.push(get2()); }
+            // Randomize result
+            randomize(ret);
+
+            return ret;
+        }
+    </script>
+    <script type="text/javascript">
+        function exec(){
+            try {
+                var ret = makeEventSet(
+                        parseInt(document.getElementById('people').value),
+                        parseInt(document.getElementById('count').value),
+                        parseInt(document.getElementById('rank').value)
+                );
+            } catch(e) {
+                alert(e);
+                return;
+            }
+
+            var elm = document.getElementById('result');
+            elm.innerHTML = '';
+            var top = document.createElement('ol');
+            for(var i= 0, e; e = ret[i]; ++i){
+                var li = document.createElement('li');
+                var top2 = document.createElement('ul');
+                for(var i2= 0, e2; e2 = e[i2]; ++i2){
+                    var li2 = document.createElement('li');
+                    li2.textContent = e2.name;
+                    top2.appendChild(li2);
+                }
+                li.appendChild(top2);
+                top.appendChild(li);
+            }
+            elm.appendChild(top);
+        }
+    </script>
+</head>
+<body>
+    <h1>三角巾リレーメーカー v1.0.0</h1>
+    <hr>
+    <p>人数: <input id="people" type="number" value="4" /></p>
+    <p>斤の枚数： <input id="count" type="number" value="6" /></p>
+    <p>
+        <select id="rank">
+            <option value="1">標準セット</option>
+            <option value="2">応用セット</option>
+            <option value="3">マニアックセット</option>
+        </select>
+    </p>
+    <input type="button" value="適当に作る" onclick="exec();">
+    <hr>
+    <div id="result" style="font-size: xx-large">ここに結果が表示されます...</div>
+    <hr>
+    <div style="font-size: x-small;text-align: center;">
+        <div>
+            License:
+            <a href="https://github.com/knaou/triangular_bandage_relay_maker/blob/master/LICENSE">MIT</a>
+            , Source:
+            <a href="https://github.com/knaou/triangular_bandage_relay_maker">GitHub</a>
+        </div>
+        <div>
+            copyright (C) 2016 <a href="http://naoblo.net/">naou</a> All Rights Reserved.
+        </div>
+    </div>
+</body>
+</html>

@@ -8,4 +8,4 @@
 3. 右クリック(ロングタップ) で保存することでローカルに保存できます（ブラウザが対応していれば…）
 4. ライセンスは MIT License です。ご自由に改変ください
 
-[こちら](http://naou.cool-ex.com/relay/index.html)で利用できます。
+[こちら](https://knaou.github.io/triangular_bandage_relay_maker/)で利用できます。
